@@ -8,13 +8,14 @@ using MediatR;
 namespace Catalog.Application.Handlers;
 
 public class GetAllBrandsHandler(IBrandRepository brandRepository)
-    : IRequestHandler<GetAllBrandsQuery, IList<BrandResponse>>
+    : IRequestHandler<GetAllBrandsQuery, IList<ProductBrandResponse>>
 {
-    public async Task<IList<BrandResponse>> Handle(GetAllBrandsQuery request, CancellationToken cancellationToken)
+    public async Task<IList<ProductBrandResponse>> Handle(GetAllBrandsQuery request,
+        CancellationToken cancellationToken)
     {
         var brandList = await brandRepository.GetAllBrands();
         var brandResponseList =
-            ProductMapper.Mapper.Map<IList<ProductBrand>, IList<BrandResponse>>(brandList.ToList());
+            ProductMapper.Mapper.Map<IList<ProductBrand>, IList<ProductBrandResponse>>(brandList.ToList());
         return brandResponseList;
     }
 }

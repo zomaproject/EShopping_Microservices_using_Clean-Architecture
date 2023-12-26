@@ -1,6 +1,6 @@
 ﻿namespace Catalog.Application.Responses;
 
-public class TypesResponse
+public class ProductTypeResponse
 {
     public string Id { get; set; }
 
