@@ -44,7 +44,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     Predicate = _ => true,
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
-// app.UseHttpsRedirection();
+// app.UseHttpsRediretion();
 
 app.UseAuthentication();
 
