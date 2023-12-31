@@ -1,3 +1,9 @@
+using Discount.API.Services;
+using Discount.Application.Handlers;
+using Discount.Core.Repositories;
+using Discount.Infrastructure.Extensions;
+using Discount.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblies(typeof(CreateDiscountHandler).Assembly));
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddGrpc();
 
 var app = builder.Build();
 
@@ -15,12 +26,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapControllers();
+// app.MapControllers();
+app.MapGrpcService<DiscountService>();
+app.MapGet("/", async context =>
+{
+    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. " +
+                                      "To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+});
 app.UseHttpsRedirection();
 
-app.Run();
+app.Services.GetService<IHost>()?.MigrateDatabase<Program>();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run();

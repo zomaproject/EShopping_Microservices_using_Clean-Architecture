@@ -10,26 +10,25 @@ public static class DbExtension
 {
     public static IHost MigrateDatabase<TContext>(this IHost host)
     {
-        using (var scope = host.Services.CreateScope())
+        using var scope = host.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        var config = services.GetRequiredService<IConfiguration>();
+
+        var logger = services.GetRequiredService<ILogger<TContext>>();
+        try
         {
-            var services = scope.ServiceProvider;
-
-            var config = services.GetRequiredService<IConfiguration>();
-
-            var logger = services.GetRequiredService<ILogger<TContext>>();
-            try
-            {
-                logger.LogInformation("Discount DB Migration started");
-                ApplyMigrations<TContext>(config);
-                logger.LogInformation("Discount DB Migration completed");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            logger.LogInformation("Discount DB Migration started");
+            ApplyMigrations<TContext>(config);
+            logger.LogInformation("Discount DB Migration completed");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
 
+        host.Run();
         return host;
     }
 
@@ -37,14 +36,12 @@ public static class DbExtension
     {
         using var connectionString = new NpgsqlConnection(config.GetValue<string>("DatabaseSettings:ConnectionString"));
         connectionString.Open();
-        using var cmd = new NpgsqlCommand
-        {
-            Connection = connectionString
-        };
+        using var cmd = new NpgsqlCommand();
+        cmd.Connection = connectionString;
         cmd.CommandText = "DROP TABLE IF EXISTS Coupon";
         cmd.ExecuteNonQuery();
         cmd.CommandText = @"CREATE TABLE Coupon(Id SERIAL PRIMARY KEY, 
-                                        ProductName VARCHAR(24) NOT NULL,
+                                        ProductName VARCHAR(500) NOT NULL,
                                         Description TEXT,
                                         Amount INT)";
         cmd.ExecuteNonQuery();
