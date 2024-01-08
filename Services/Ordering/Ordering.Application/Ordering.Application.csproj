@@ -11,8 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Behaviour\"/>
-        <Folder Include="Validators\"/>
+        <Folder Include="Extensions\"/>
     </ItemGroup>
 
     <ItemGroup>
